@@ -1,0 +1,78 @@
+---
+title: "Statistical Inference Course Project"
+author: "Jakub Wiatrak"
+date: "20 April 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Overview
+
+This is course project report, created as a part of Statistical Inference course on Coursera. The aim of this report is to investigate exponential distribution and compare it with the Central Limit Theorem in terms of mean and variability.
+
+
+## Simulations
+
+First, let's take a look an the exponential distribution. The following code simulates 1000 random exponentials with rate (lambda) equal to 0.2.
+
+```{r}
+library(ggplot2)
+exp_dist <- rexp(1000, 0.2)
+qplot(exp_dist, geom = "histogram", binwidth = 2)
+```
+
+As we can see, the distribution is clearly different from normal.
+
+
+Now we will simulate a 1000 samples of 40 random exponentials. The rate (lambda) would be 0.2 again.
+
+```{r}
+exp_samples <- NULL
+for (i in 1:1000) exp_samples <- c(exp_samples, mean(rexp(40, 0.2)))
+exp_samples <- data.frame(exp_samples)
+
+ggplot(exp_samples, aes(x=exp_samples)) +
+        geom_histogram(aes(y=..density..), binwidth = 0.2) +
+        geom_vline(xintercept=mean(exp_samples[,1]), size=1, color = "green") +
+        geom_vline(xintercept=1/0.2, size=1, color = "red") +
+        stat_function(fun=dnorm,
+                      color="red",
+                      size = 2,
+                      args=list(mean=1/0.2, sd=5/sqrt(40)))
+
+```
+
+It is clearly visible, that the distribution is very similar to normal. For comparison, normal distribution has been ploted on the histogram with a red line
+
+### Theoretical mean and empirical mean
+
+Theoretical mean of exponential distribution is equal to 1/lambda. Let's compare that to the mean of our 1000 simulations:
+```{r}
+#Theoretical mean
+1/0.2
+
+#Empirical mean
+mean(exp_samples[,1])
+
+```
+
+Those means are very close. This can also be seen on the figure above: theoretical mean is indicated by the red vertical line, while empirical mean is marked by the green line.
+
+### Theoretical variance and empirical variance
+
+The theoretical variance of exponential distribution is (1/lambda)^2. Therefore, according to CLT, the theoretical variance of n random exponentials is (1/lambda)^2/n.
+Let's compare the theoretical variance to the empirical one:
+
+```{r}
+#Theoretical variance
+(1/0.2)^2/40
+
+#Empirical variance
+var(exp_samples[,1])
+```
+
+As we can see, those variances are very close
